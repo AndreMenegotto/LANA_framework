@@ -25,7 +25,6 @@ axis*), and the taxonomic classification (*systematic axis*).
 <p align="center">
 
 <img src="./LANA_workflow.png" width="50%"/>
-
 </p>
 
 <div align="center">

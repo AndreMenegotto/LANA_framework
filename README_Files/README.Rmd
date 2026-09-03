@@ -16,7 +16,7 @@ This repository contains the code necessary to run the **LANA** framework (*Linn
 <br>
 
 <p align="center">
-<img src="./README_Files/LANA_workflow.png" width="50%"/>
+<img src="./LANA_workflow.png" width="50%"/>
 </p>
 
 ::: {align="center"}
