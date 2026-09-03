@@ -2,29 +2,29 @@
 title: "The Linnean Approach to Nomenclatural Accuracy"
 output: github_document
 ---
+
 André Menegotto
 
 <br>
 
 ## Introduction
 
-<div align="justify">
-
+::: {align="justify"}
 This repository contains the code necessary to run the **LANA** framework (*Linnean Approach to Nomenclatural Accuracy*), a protocol designed to assess the confidence of matches between queried species names and the suggestions returned by a taxonomic database during the harmonization process. The framework evaluates similarity scores across three key information axes associated with a scientific name: the binomial (*orthographic axis*), the taxonomic authorship (*authorial axis*), and the taxonomic classification (*systematic axis*).
-
-</div>
+:::
 
 <br>
+
 <p align="center">
-<img src="./README_Files/LANA_workflow.png" width=50%>
+<img src="./README_Files/LANA_workflow.png" width="50%"/>
 </p>
-<div align="center">*LANA framework workflow*</div>
+
+::: {align="center"}
+*LANA framework workflow*
+:::
+
 <br>
 
-<div align="justify">
-
-The code in this repository was developed specifically to query scientific names from GBIF (Global Biodiversity Information Facility) in WoRMS (World Register of Marine Species), filter the matches to retain only extant marine species, classify the confidence level of the suggested matches, and return a data set containing the valid species name for each queried scientific name. All core functions implementing the framework are located in the script *`LANA_Functions.R`*. A demonstration of these functions, based on marine records around the island of Crete, can be reproduced using the script *`1_ApplicationCrete.R`*. A second data analysis script, *`2_NameStats.R`*, was created solely to explore orthographic distances among scientific names and does not contribute directly to running or testing the framework.
-
-Raw data are not included in this repository but can be accessed through the links referenced within the scripts.
-
-</div>
+::: {align="justify"}
+The code in this repository was developed specifically to query scientific names from GBIF (Global Biodiversity Information Facility) in WoRMS (World Register of Marine Species), filter the matches to retain only extant marine species, classify the confidence level of the suggested matches, and return a data set containing the valid species name for each queried scientific name. All core functions implementing the framework are located in the script *`LANA_Functions.R`*. A demonstration of these functions, based on marine records around the island of Crete, can be reproduced using the script *`1_ApplicationCrete.R`*. Raw data are not included in this repository but can be accessed through the links referenced within the scripts.
+:::

@@ -2,7 +2,7 @@
 # ------------------------------------------------------------
 # Script:   LANA_Functions.R
 # Purpose:  Execute the LANA framework
-# Updated:  09-12-2025
+# Updated:  13-07-2026
 # ------------------------------------------------------------
 
 
@@ -320,7 +320,9 @@ fill_MarHabitat <- function(wormsTab)
   habMar <- wormsTab$isMarine
   wormsTab$isMarine <- ifelse(is.na(habMar) & habClass>0, 0, habMar)
   
-  # Check the presence of persistent NAs in valid names
+  habBrack <- wormsTab$isBrackish
+  wormsTab$isBrackish <- ifelse(is.na(habBrack) & habClass>0, 0, habBrack)
+  
   # Check the presence of persistent NAs in valid names
   posNA <- which(is.na(wormsTab$isMarine) & !is.na(wormsTab$scientificname) & !wormsTab$status %in% taxStatus("invNames") & !wormsTab$isExtinct %in% 1)
   rankLevel <- 0
@@ -629,7 +631,6 @@ authScore <- function(wormsTab, taxTarget, YearDiff_tol=15)
     ## For names
     # First check if names (isolated from year) match
     Names <- mapply(identical, wAuthDateS$names, gAuthDateS$names)*1
-    Names
 
     # Correct typos and compare names
     name0 <- which(Names %in% 0 & !is.na(wAuthDateS$names) & !is.na(gAuthDateS$names))
@@ -666,8 +667,7 @@ authScore <- function(wormsTab, taxTarget, YearDiff_tol=15)
     ## For Dates
     # First check if year (isolated from names) match
     Year <- mapply(function(a, b){any(a == b)}, wAuthDateS$year, gAuthDateS$year)*1
-    Year
-    
+
     # Get temporal distance using an exponential decay curve
     year0 <- which(Year %in% 0 & Names > 0 & !is.na(Names))
     if(length(year0)>0)
@@ -681,7 +681,9 @@ authScore <- function(wormsTab, taxTarget, YearDiff_tol=15)
     Year[Names %in% 0 | is.na(Year)] <- 0
     
     ## Get total score
-    resScore[pos0] <- rowSums(cbind(Names*0.8, Year*0.2))
+    resScore[pos0] <- ifelse(wormsTab$kingdom[pos0] %in% c("Animalia","Protozoa"),
+                             rowSums(cbind(Names*0.8, Year*0.2)), #Year is only considered for those following the ICZN
+                             Names)                               #For those under the Botanical code (Plants, fungi, algae) and bacterias, the year is ignored
   }
   
   # Return results
@@ -924,13 +926,13 @@ orthScore <- function(wormsTab, taxTarget)
     resScore[pos0] <- apply(cbind(x1, x2), 1, max)
   }
   
-  # Fifth comparison (calculate similarity in strings composition)
-  #Note: This is necessary because a simple var. in GBIF may be a var. of a subsp. in WoRMS (i.e. it includes one more name)
-  pos0 <- which(resScore %in% 0 & wormsTab$taxonRankID > 220 & !taxTarget$taxonrank %in% "SPECIES")
-  if(length(pos0)>0)
-  {
-    resScore[pos0] <- mapply(stringAbbr, spTrim(wormsTab$scientificname[pos0], delAbv=T), spTrim(taxTarget$sciName[pos0], delAbv=T))*.9
-  }
+  # # Fifth comparison (calculate similarity in strings composition)
+  # #Note: This is necessary because a simple var. in GBIF may be a var. of a subsp. in WoRMS (i.e. it includes one more name)
+  # pos0 <- which(resScore %in% 0 & wormsTab$taxonRankID > 220 & !taxTarget$taxonrank %in% "SPECIES")
+  # if(length(pos0)>0)
+  # {
+  #   resScore[pos0] <- mapply(stringAbbr, spTrim(wormsTab$scientificname[pos0], delAbv=T), spTrim(taxTarget$sciName[pos0], delAbv=T))*.9
+  # }
   
   # Sixth comparison (calculate orthographic similarity)
   #Note: Get similarity considering the number of typo at genus and epithet separately
@@ -949,6 +951,7 @@ orthScore <- function(wormsTab, taxTarget)
     # 
     # resScore[pos0] <- simGen*simEpi
     
+    # Three edits within the same component are not allowed
     distis[distis[,1]==3,1] <- 10
     distis[distis[,2]==3,2] <- 10
     x1 <- rowSums(distis)
@@ -1101,7 +1104,7 @@ filterNames <- function(wormsTab, taxTarget)
       filter(SN_gbif %in% dups) %>%
       group_by(SN_gbif) %>%
       filter(
-        all(isMarine == 0) | all(isExtinct == 1) | all(status %in% taxStatus("invNames"))
+        (all(isMarine == 0) & all(!isBrackish %in% 1)) | all(isExtinct == 1) | all(status %in% taxStatus("invNames"))
       ) %>%
       ungroup()
     
@@ -1213,8 +1216,11 @@ filterNames <- function(wormsTab, taxTarget)
   
   
   # Fifth step: remove undesired names (invalid, extinct or non-marine)
+  #Fill in marine habitat information first (for those species that might be missing it)
+  wormsTab <- fill_MarHabitat(wormsTab = wormsTab)
+  
   delPos <- wormsTab %>%
-    filter(isMarine == 0 | isExtinct == 1 | status %in% taxStatus("invNames"))
+    filter((isMarine == 0 & !isBrackish %in% 1) | isExtinct == 1 | status %in% taxStatus("invNames"))
   
   if(nrow(delPos)>0)
   {
@@ -1467,7 +1473,7 @@ reviseData <- function(wormsTab, taxTarget)
   
   # Remove unwanted names (that might have been included during the names update)
   delPos <- wormsTab %>%
-    filter( (isMarine == 0) | (isExtinct == 1) | (status %in% taxStatus("invNames") | (is.na(valid_AphiaID)) | (taxonRankID < 220)) )
+    filter( (isMarine == 0 & !isBrackish %in% 1) | (isExtinct == 1) | (status %in% taxStatus("invNames") | (is.na(valid_AphiaID)) | (taxonRankID < 220)) )
   wormsTab <- wormsTab[!wormsTab$AphiaID %in% delPos$AphiaID,]
   
   # Standardize name status

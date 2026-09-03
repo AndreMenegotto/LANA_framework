@@ -21,8 +21,11 @@ axis*), and the taxonomic classification (*systematic axis*).
 </div>
 
 <br>
+
 <p align="center">
-<img src="./README_Files/LANA_workflow.png" width=50%>
+
+<img src="./LANA_workflow.png" width="50%"/>
+
 </p>
 
 <div align="center">
@@ -44,12 +47,7 @@ name for each queried scientific name. All core functions implementing
 the framework are located in the script *`LANA_Functions.R`*. A
 demonstration of these functions, based on marine records around the
 island of Crete, can be reproduced using the script
-*`1_ApplicationCrete.R`*. A second data analysis script,
-*`2_NameStats.R`*, was created solely to explore orthographic distances
-among scientific names and does not contribute directly to running or
-testing the framework.
-
-Raw data are not included in this repository but can be accessed through
-the links referenced within the scripts.
+*`1_ApplicationCrete.R`*. Raw data are not included in this repository
+but can be accessed through the links referenced within the scripts.
 
 </div>
